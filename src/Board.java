@@ -19,14 +19,14 @@ public class Board {
             {0,1},{1,1},
             {-1,0},{1,0},
             {-1,-1},{0,-1}
-    }
+    };
 
     public Board(){
         for (int[] row: boardRepr){
             Arrays.fill(row,0);
         }
 
-        int[][] dontExistingFields = {
+        int[][] nonExistingFields = {
                 {0,8},{1,8},{2,8},{3,8},
                 {0,7},{1,7},{2,7},
                 {0,6},{1,6},
@@ -35,7 +35,7 @@ public class Board {
                 {7,2},{8,2},
                 {6,1},{7,1},{8,1},
                 {5,0},{6,0},{7,0},{8,0}};
-        setField(dontExistingFields,0xff);
+        setField(nonExistingFields,0xff);
         int[][] teamOnePlacement    = {{0,0},{1,0},{2,0},{3,0},{4,0}};
         setField(teamOnePlacement,0x10);
         int[][] teamTwoPlacement    = {{0,4},{1,5},{2,6},{3,7},{4,8}};
@@ -50,23 +50,28 @@ public class Board {
         }
     }
 
-    private int[][] getPossibleNeighborFields(int[] coordinate){
-        ArrayList<Integer[]> possibleNeighborFields = new ArrayList<Integer[]>();
+    public int[][] getPossibleNeighborFields(int[] coordinate){
+        int[][] possibleNeighborFields = new int[6][2];
+        int counter = 0;
         for (int[] neighborField :neighbors){
-            Integer[] newCoordinate = {coordinate[0] + neighborField[0],coordinate[1] + neighborField[1]};
-            if (isLegalField(newCoordinate)){
-                possibleNeighborFields.add(newCoordinate);
+            int[] newCoordinate = {coordinate[0] + neighborField[0],coordinate[1] + neighborField[1]};
+            if (isLegalField(newCoordinate[0],newCoordinate[1])){
+                possibleNeighborFields[counter] = newCoordinate;
+                counter ++;
             }
         }
+        return Arrays.copyOfRange(possibleNeighborFields, 0, counter);
     }
 
-    private boolean isLegalField(int[] coordinate){
+    private boolean isLegalField(int x, int y){
         try {
-            int valueOnBoard = boardRepr[coordinate[0]][coordinate[1]];
-            if (valueOnBoard != 255 & ...)
+            int valueOnBoard = boardRepr[x][y];
+            if (valueOnBoard != 255 & x >= 0 & x <= 9 & y >= 0 & y <= 9){
+                return true;
+            }
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
-
+        return false;
     }
 }
