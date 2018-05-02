@@ -1,3 +1,5 @@
+import lenz.htw.gawihs.Move;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -37,13 +39,14 @@ public class Board {
                 {5,0},{6,0},{7,0},{8,0}};
         setField(nonExistingFields,0xff);
         int[][] teamOnePlacement    = {{0,0},{1,0},{2,0},{3,0},{4,0}};
-        setField(teamOnePlacement,0x10);
+        setField(teamOnePlacement,0x1);
         int[][] teamTwoPlacement    = {{0,4},{1,5},{2,6},{3,7},{4,8}};
-        setField(teamTwoPlacement,0x20);
+        setField(teamTwoPlacement,0x2);
         int[][] teamThreePlacement  = {{8,4},{8,5},{8,6},{8,7},{8,8}};
-        setField(teamThreePlacement,0x30);
+        setField(teamThreePlacement,0x3);
 
     }
+
     private void setField(int[][]coordinates, int valueToPlace){
         for (int[] coordinate :coordinates){
             boardRepr[coordinate[0]][coordinate[1]] = valueToPlace;
