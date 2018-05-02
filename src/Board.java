@@ -61,28 +61,100 @@ public class Board {
         }
     }
 
-    public int[][] getPossibleNeighborFields(int[] coordinate){
-        int[][] possibleNeighborFields = new int[6][2];
+    public ArrayList<Point> getPossibleMoveToPositionFrom(Point coordinate){
+        ArrayList<Point> possibleNeighborFields = new ArrayList<>();
         int counter = 0;
-        for (int[] neighborField :neighbors){
-            int[] newCoordinate = {coordinate[0] + neighborField[0],coordinate[1] + neighborField[1]};
-            if (isLegalField(newCoordinate[0],newCoordinate[1])){
-                possibleNeighborFields[counter] = newCoordinate;
-                counter ++;
+        for (Point neighborField :neighbors){
+            Point newCoordinate = new Point(coordinate.x + neighborField.x,coordinate.y + neighborField.y);
+            if (isExitingField(newCoordinate)){
+                if( isLegalMoveToField(newCoordinate)) {
+                    possibleNeighborFields.add(newCoordinate);
+                }
             }
         }
-        return Arrays.copyOfRange(possibleNeighborFields, 0, counter);
+        return possibleNeighborFields;
     }
 
-    private boolean isLegalField(int x, int y){
+    private boolean isExitingField(Point x){
         try {
-            int valueOnBoard = boardRepr[x][y];
-            if (valueOnBoard != 255 & x >= 0 & x <= 9 & y >= 0 & y <= 9){
+            int valueOnBoard = boardRepr[x.x][x.y];
+            if (valueOnBoard != 255 & x.x >= 0 & x.x <= 9 & x.y >= 0 & x.y <= 9){
                 return true;
             }
         } catch (ArrayIndexOutOfBoundsException e) {
             return false;
         }
         return false;
+    }
+
+    public boolean performMove(Move move){
+        //could put in error catch thing when team is not own team or sth. like that
+        int team = getTeamOfUppestStone(new Point(move.fromX,move.fromY));
+        takeAwayUppestStone(new Point(move.fromX,move.fromY));
+        placeStoneOnField(new Point(move.toX,move.toY),team);
+        changeStonePositon(move,team);
+        return true;
+    }
+
+    private void changeStonePositon(Move move, int team){
+        for (Point stonePos : teamPosition[team - 1]){
+            if (stonePos.x == move.fromX & stonePos.y == move.fromY){
+                stonePos.x = move.toX;
+                stonePos.y = move.toY;
+            }
+        }
+    }
+
+    public int getStateOfBoard(Point point) {
+        return boardRepr[point.x][point.y];
+    }
+
+    private boolean isLegalMoveToField(Point point){
+        int state = getStateOfBoard(point);
+        if (state < 16 & getTeamOfUppestStone(point) != teamNumber)
+            return true;
+        else
+            return false;
+    }
+
+    private int getTeamOfUppestStone(Point point) {
+        return getStateOfBoard(point) & 0xf;
+    }
+
+    private void takeAwayUppestStone(Point point){
+        boardRepr[point.x][point.y] = boardRepr[point.x][point.y] >> 4;
+    }
+
+    private void placeStoneOnField(Point point,int team){
+        boardRepr[point.x][point.y] = (boardRepr[point.x][point.y] << 4) | team;
+    }
+
+    public ArrayList<Move> gatherAllPossibleMovements(int teamNumber){
+        int teamIndex = teamNumber - 1;
+        Point[] teamStonePositions = this.teamPosition[teamIndex];
+        
+        ArrayList<ArrayList<Point>> possibleMoveToPosition= new ArrayList();
+        for (int stoneIndex = 0; stoneIndex < 5; stoneIndex++){
+            Point currentStonePosition = teamStonePositions[stoneIndex];
+            possibleMoveToPosition.add(stoneIndex,getPossibleMoveToPositionFrom(currentStonePosition));
+        }
+        
+        ArrayList possibleMovements = new ArrayList();
+
+        for (int moveStoneIndex = 0; moveStoneIndex < 5; moveStoneIndex ++){
+            Point moveStonePosition = teamStonePositions[moveStoneIndex];
+
+            Set<Point> moveToPositions = new HashSet();
+            for(int remainStoneIndex = 0; remainStoneIndex < 5; remainStoneIndex ++){
+                if (remainStoneIndex != moveStoneIndex){
+                   moveToPositions.addAll(possibleMoveToPosition.get(remainStoneIndex));
+                }
+            }
+
+            for (Point moveToPosition: moveToPositions){
+                possibleMovements.add(new Move(moveStonePosition.x,moveStonePosition.y,moveToPosition.x,moveToPosition.y));
+            }
+        }
+        return possibleMovements;
     }
 }
