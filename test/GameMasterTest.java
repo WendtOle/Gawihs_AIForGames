@@ -19,30 +19,6 @@ public class GameMasterTest {
     }
 
     @Test
-    public void testGetCurrentTeamNumber(){
-        assertEquals(1,master.getCurrentTeamNumber());
-        assertEquals(2,master.getCurrentTeamNumber());
-        assertEquals(3,master.getCurrentTeamNumber());
-        assertEquals(1,master.getCurrentTeamNumber());
-    }
-
-    @Test
-    public void testRemovePlayer01(){
-        master.removePlayerFromGame(1);
-        assertEquals(2,master.getCurrentTeamNumber());
-        assertEquals(3,master.getCurrentTeamNumber());
-        assertEquals(2,master.getCurrentTeamNumber());
-    }
-
-    @Test
-    public void testRemovePlayer02(){
-        assertEquals(1,master.getCurrentTeamNumber());
-        master.removePlayerFromGame(2);
-        assertEquals(3,master.getCurrentTeamNumber());
-        assertEquals(1,master.getCurrentTeamNumber());
-    }
-
-    @Test
     public void testPerformLegalMove(){
         master.performMove(new Move(0,0,1,1),1);
         assertFalse(master.board.isExitingField(new Point(0,0)));
@@ -58,9 +34,11 @@ public class GameMasterTest {
         for(Point stonePos:master.teamPosition[teamIndex]){
             assertFalse(master.board.isExitingField(stonePos));
         }
-        assertEquals(2,master.getCurrentTeamNumber());
-        assertEquals(3,master.getCurrentTeamNumber());
-        assertEquals(2,master.getCurrentTeamNumber());
+        assertEquals(2,master.roundMeter.getValue());
+        master.nextPlayer();
+        assertEquals(3,master.roundMeter.getValue());
+        master.nextPlayer();
+        assertEquals(2,master.roundMeter.getValue());
     }
 
     @Test
@@ -80,7 +58,7 @@ public class GameMasterTest {
 
         assertTrue(master.board.isStillPlaceOnField(testPoint));
         assertEquals(2,master.board.whichTeamIsOnTop(testPoint));
-        assertEquals(2,master.getCurrentTeamNumber());
+        assertEquals(2,master.roundMeter.getValue());
     }
 
     @Test
@@ -96,17 +74,20 @@ public class GameMasterTest {
         assertEquals(2,master.board.whichTeamIsOnTop(testPoint));
 
         //illegal Move from team One
-        master.performMove(new Move(-1,-1,-1,-1),2);
+        master.performMove(new Move(-1,-1,-1,-1),1);
 
-        assertFalse(master.board.isStillPlaceOnField(testPoint));
+        assertTrue(master.board.isStillPlaceOnField(testPoint));
         assertEquals(2,master.board.whichTeamIsOnTop(testPoint));
-        assertFalse(master.board.isExitingField(new Point(1,5)));
-        assertFalse(master.board.isExitingField(new Point(2,6)));
-        assertFalse(master.board.isExitingField(new Point(3,7)));
-        assertFalse(master.board.isExitingField(new Point(4,8)));
+        assertFalse(master.board.isExitingField(new Point(1,0)));
+        assertFalse(master.board.isExitingField(new Point(2,0)));
+        assertFalse(master.board.isExitingField(new Point(3,0)));
+        assertFalse(master.board.isExitingField(new Point(4,0)));
 
-        assertEquals(1,master.getCurrentTeamNumber());
-        assertEquals(3,master.getCurrentTeamNumber());
+        assertEquals(2,master.roundMeter.getValue());
+        master.nextPlayer();
+        assertEquals(3,master.roundMeter.getValue());
+        master.nextPlayer();
+        assertEquals(2,master.roundMeter.getValue());
     }
 
     @Test
@@ -117,4 +98,5 @@ public class GameMasterTest {
         assertFalse(master.board.isExitingField(new Point(0,0)));
         assertFalse(master.board.isExitingField(new Point(4,0)));
     }
+
 }

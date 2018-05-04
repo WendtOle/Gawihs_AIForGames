@@ -6,12 +6,15 @@ import lenz.htw.gawihs.net.NetworkClient;
 import java.io.File;
 import java.io.IOException;
 
-public class GawihsClient {
+//da wo man hinsetzt sollten genug umgebungssteine stehen, wenn man sich auf einen platz mit keiner umgebung stellt dann ist das eher schlecht
+
+public class GawihsClient{
     public static void main(String[] args) throws IOException {
 
         NetworkClient client = new NetworkClient("localhost", "", ImageIO.read(new File("PizzaRick.jpg")));
 
-        Board board = new Board(client.getMyPlayerNumber());
+        GameMaster master = new GameMaster(client.getMyPlayerNumber());
+        OptionCalculator optionCalculator = new OptionCalculator(master);
 
         client.getTimeLimitInSeconds();
 
@@ -19,25 +22,19 @@ public class GawihsClient {
 
         while(true) {
             Move move = client.receiveMove();
-            if (move == null) {
-                //ich bin dran
-                System.out.print("ich mach mein Move als " + client.getMyPlayerNumber() + ". Spieler");
-                switch (client.getMyPlayerNumber()) {
-                    case 0:
-                        client.sendMove(new Move(0, 0, 1, 1));
-                        break;
-                    case 1:
-                        client.sendMove(new Move(0, 4, 1, 4));
-                        break;
-                    case 2:
-                        client.sendMove(new Move(8, 8, 7, 7));
-                        break;
 
+            if (move == null) {
+                if (master.roundMeter.getValue() != master.ownPlayerNumber){
+                    master.performIllegalMoveForNnextElementextTeamAndMoveOn();
                 }
+                Move nextMove = optionCalculator.getRandomMovement(client.getMyPlayerNumber() + 1);
+                client.sendMove(nextMove);
             }
-             else
-                System.out.println(move.toString());
-            //baue zug in meine spielfeldrepräsentation ein
+             else {
+                master.performMove(move);
+                master.nextPlayer();
+            }
+
         }
     }
 }
