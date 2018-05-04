@@ -33,33 +33,44 @@ public class OptionCalculator {
         Point[] teamStonePositions = master.teamPosition[teamIndex];
 
         //ich speicher zu jedem der 5 teamsteine die potentiellen nachbarn geordnet ab, aber nur falls sie frei sein sollten
-        ArrayList<ArrayList<Point>> possibleMoveToPosition= new ArrayList();
+        ArrayList<ArrayList<Point>> possibleMoveTOposition= new ArrayList();
         for (int stoneIndex = 0; stoneIndex < 5; stoneIndex++){
             Point currentStonePosition = teamStonePositions[stoneIndex];
-            if (teamNumber == master.board.whichTeamIsOnTop(currentStonePosition))
-                possibleMoveToPosition.add(stoneIndex,getLegallyAccebleNeighbours(currentStonePosition, teamNumber));
+            if (isStoneLayingFree(teamNumber, currentStonePosition))
+                possibleMoveTOposition.add(stoneIndex,getLegallyAccebleNeighbours(currentStonePosition, teamNumber));
             else
-                possibleMoveToPosition.add(stoneIndex,new ArrayList());
+                possibleMoveTOposition.add(stoneIndex,new ArrayList());
         }
 
-        ArrayList possibleMovements = new ArrayList();
+        ArrayList<Move> possibleMovements = new ArrayList();
 
         for (int moveStoneIndex = 0; moveStoneIndex < 5; moveStoneIndex ++){
-            Point moveStonePosition = teamStonePositions[moveStoneIndex];
+            Point currentStonePosition = teamStonePositions[moveStoneIndex];
 
-            if (teamNumber == master.board.whichTeamIsOnTop(moveStonePosition)) {
-                Set<Point> moveToPositions = new HashSet();
-                for(int remainStoneIndex = 0; remainStoneIndex < 5; remainStoneIndex ++){
-                    if (remainStoneIndex != moveStoneIndex){
-                        moveToPositions.addAll(possibleMoveToPosition.get(remainStoneIndex));
-                    }
-                }
-                for (Point moveToPosition: moveToPositions){
-                    possibleMovements.add(new Move(moveStonePosition.x,moveStonePosition.y,moveToPosition.x,moveToPosition.y));
+            if (isStoneLayingFree(teamNumber, currentStonePosition)) {
+                Set<Point> moveTOPositionsForCurrentStone = gatherAllAccessablesNeighboursButOwn(possibleMoveTOposition, moveStoneIndex);
+
+                for (Point moveToPosition: moveTOPositionsForCurrentStone){
+                    Move move = new Move(currentStonePosition.x,currentStonePosition.y,moveToPosition.x,moveToPosition.y);
+                    possibleMovements.add(move);
                 }
             }
         }
         return possibleMovements;
+    }
+
+    private Set<Point> gatherAllAccessablesNeighboursButOwn(ArrayList<ArrayList<Point>> possibleMoveTOposition, int moveStoneIndex) {
+        Set<Point> moveTOPositionsForCurrentStone = new HashSet();
+        for(int remainStoneIndex = 0; remainStoneIndex < 5; remainStoneIndex ++){
+            if (remainStoneIndex != moveStoneIndex){
+                moveTOPositionsForCurrentStone.addAll(possibleMoveTOposition.get(remainStoneIndex));
+            }
+        }
+        return moveTOPositionsForCurrentStone;
+    }
+
+    private boolean isStoneLayingFree(int teamNumber, Point currentStonePosition) {
+        return teamNumber == master.board.whichTeamIsOnTop(currentStonePosition);
     }
 
     private ArrayList<Point> getLegallyAccebleNeighbours(Point point,int teamNumber) {
