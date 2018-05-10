@@ -15,7 +15,7 @@ public class OptionCalculator {
     }
 
     public Move getRandomMovement(int teamNumber) {
-        ArrayList<Move> moves = gatherAllPossibleMovements(teamNumber);
+        ArrayList<Move> moves = getAllPossibleMovements(teamNumber);
         Point randomStoneFromTeam = master.teamPosition[teamNumber - 1][0];
         Move nextMove = new Move(randomStoneFromTeam.x,randomStoneFromTeam.y,-1,-1);
         if (moves.size() > 0) {
@@ -28,7 +28,7 @@ public class OptionCalculator {
         return nextMove;
     }
 
-    public ArrayList<Move> gatherAllPossibleMovements(int teamNumber){
+    public ArrayList<Move> getAllPossibleMovements(int teamNumber){
         int teamIndex = teamNumber - 1;
         Point[] teamStonePositions = master.teamPosition[teamIndex];
 
@@ -57,6 +57,23 @@ public class OptionCalculator {
             }
         }
         return possibleMovements;
+    }
+
+    private int getCountOfAllPossibleMovementsForTeam(int teamNumber){
+        return getAllPossibleMovements(teamNumber).size();
+    }
+
+    public int getBoardRatingForTeam(int teamNumber){
+        int result = 0;
+
+        for (int i = 1; i < 4; i++) {
+            int currentResult = getCountOfAllPossibleMovementsForTeam(i);
+            if (i == teamNumber)
+                result += currentResult * 2;
+            else
+                result -= currentResult;
+        }
+        return result;
     }
 
     private Set<Point> gatherAllAccessablesNeighboursButOwn(ArrayList<ArrayList<Point>> possibleMoveTOposition, int moveStoneIndex) {

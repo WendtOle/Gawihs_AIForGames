@@ -11,11 +11,11 @@ public class OptionCalculatorTest {
 
     @Test
     public void test(){
-        ArrayList<Move> moves01 = optionCalculator.gatherAllPossibleMovements(1);
+        ArrayList<Move> moves01 = optionCalculator.getAllPossibleMovements(1);
         assertEquals(28,moves01.size());
-        ArrayList<Move> moves02 = optionCalculator.gatherAllPossibleMovements(2);
+        ArrayList<Move> moves02 = optionCalculator.getAllPossibleMovements(2);
         assertEquals(28,moves02.size());
-        ArrayList<Move> moves03 = optionCalculator.gatherAllPossibleMovements(3);
+        ArrayList<Move> moves03 = optionCalculator.getAllPossibleMovements(3);
         assertEquals(28,moves03.size());
     }
 
@@ -23,7 +23,7 @@ public class OptionCalculatorTest {
     public void testOptionWithMoveBefore(){
         optionCalculator.master.performMove(new Move(0,0,1,1),1);
 
-        ArrayList<Move> moves01 = optionCalculator.gatherAllPossibleMovements(1);
+        ArrayList<Move> moves01 = optionCalculator.getAllPossibleMovements(1);
         assertEquals(31,moves01.size());
     }
 }
