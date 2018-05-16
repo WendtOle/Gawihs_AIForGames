@@ -72,9 +72,7 @@ public class Board {
     }
 
     public void placeStoneOneField(Point point, int team){
-        System.out.println(boardRepr[point.x][point.y]);
         boardRepr[point.x][point.y] = (boardRepr[point.x][point.y] << 4) | team;
-        System.out.println(boardRepr[point.x][point.y]);
     }
 
     public int whichTeamIsOnTop(Point point) throws IndexOutOfBoundsException {
