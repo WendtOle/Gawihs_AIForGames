@@ -14,7 +14,8 @@ public class GawihsClient{
         NetworkClient client = new NetworkClient("localhost", "", ImageIO.read(new File("PizzaRick.jpg")));
 
         GameMaster master = new GameMaster(client.getMyPlayerNumber());
-        OptionCalculator optionCalculator = new OptionCalculator(master);
+
+        OptionCalculator optionCalculator = new OptionCalculator();
 
         client.getTimeLimitInSeconds();
 
@@ -27,7 +28,15 @@ public class GawihsClient{
                 if (master.roundMeter.getValue() != master.ownPlayerNumber){
                     master.performIllegalMoveForNnextElementextTeamAndMoveOn();
                 }
-                Move nextMove = optionCalculator.getRandomMovement(client.getMyPlayerNumber() + 1);
+
+                Move nextMove;
+
+                if (master.ownPlayerNumber==1) {
+                    GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber - 1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
+                    nextMove = optionCalculator.alphabeta(tempGameMaster, 5, Integer.MIN_VALUE, Integer.MAX_VALUE).move;
+                } else
+                    nextMove = optionCalculator.getRandomMovement(client.getMyPlayerNumber() + 1, master);
+
                 client.sendMove(nextMove);
             }
              else {

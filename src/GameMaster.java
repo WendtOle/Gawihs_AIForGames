@@ -6,7 +6,8 @@ import java.util.ArrayList;
 public class GameMaster {
     int ownPlayerNumber;
     Board board;
-    CircleArray roundMeter = CircleArrayCreator.createCircleArray(3,1);
+    //CircleArray roundMeter = CircleArrayCreator.createCircleArray(3,1);
+    RoundRobin roundMeter;
     Point[][] teamPosition = {
             {new Point(0,0),new Point(1,0),new Point(2,0),new Point(3,0),new Point(4,0)},
             {new Point(0,4),new Point(1,5),new Point(2,6),new Point(3,7),new Point(4,8)},
@@ -15,8 +16,16 @@ public class GameMaster {
 
     public GameMaster(int ownPlayerIndex){
         ownPlayerNumber = ownPlayerIndex + 1;
-        board = new Board();
+        this.board = new Board();
+        this.roundMeter = new RoundRobin();
         board.setPlayerOnBoard(teamPosition);
+    }
+
+    public GameMaster(int ownPlayherIndex, Board board, RoundRobin roundRobin, Point[][] teamPosition) {
+        ownPlayerNumber = ownPlayherIndex + 1;
+        this.board = board;
+        this.roundMeter = roundRobin;
+        this.teamPosition = teamPosition;
     }
 
     public void performMove(Move move){
@@ -33,6 +42,15 @@ public class GameMaster {
         }
     }
 
+    public Point[][] cloneTeamposition() {
+        Point[][] clone = new Point[teamPosition.length][teamPosition[0].length];
+
+        for(int i=0; i < teamPosition.length; i++)
+            for(int j=0; j < teamPosition[i].length; j++)
+                clone[i][j] = new Point (teamPosition[i][j].x, teamPosition[i][j].y);
+        return clone;
+    }
+
     private void removePlayer(int teamNumber) {
         for (Point positionOfFieldToDestroy : teamPosition[teamNumber - 1]) {
             if (board.whichTeamIsOnTop(positionOfFieldToDestroy) == teamNumber) {
@@ -42,7 +60,8 @@ public class GameMaster {
                 board.removeLowerStoneFromField(positionOfFieldToDestroy);
             }
         }
-        roundMeter = roundMeter.removeElementWithValue(teamNumber);
+        //roundMeter = roundMeter.removeElementWithValue(teamNumber);
+        roundMeter.removeElementWithValue(teamNumber);
     }
 
     private boolean isLegalMove(Move move, int teamNumber){
@@ -108,6 +127,7 @@ public class GameMaster {
     }
 
     public void nextPlayer() {
-        roundMeter = roundMeter.getNextElement();
+        roundMeter.next();
+        //roundMeter = roundMeter.getNextElement();
     }
 }

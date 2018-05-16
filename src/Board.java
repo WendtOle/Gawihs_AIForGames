@@ -22,6 +22,10 @@ public class Board {
         setRow(FixedValues.nonExistingFields,0xff);
     }
 
+    public Board(int [][] board) {
+        this.boardRepr = board;
+    }
+
     public void setPlayerOnBoard(Point[][] teamPosition){
         for (int i = 0; i < teamPosition.length; i++) {
             setRow(teamPosition[i],i + 1);
@@ -34,7 +38,7 @@ public class Board {
         }
     }
 
-    private void setField(Point point, int valueToPlace){
+    public void setField(Point point, int valueToPlace){
         boardRepr[point.x][point.y] = valueToPlace;
     }
 
@@ -98,5 +102,15 @@ public class Board {
     public void removeLowerStoneFromField(Point point){
         int newValue = get(point) & 0xf;
         setField(point, newValue);
+    }
+
+    public Board clone () {
+        int[][] clone = new int[9][9];
+
+        for(int i=0; i < boardRepr.length; i++)
+            for(int j=0; j < boardRepr[i].length; j++)
+                clone[i][j] = boardRepr[i][j];
+
+        return new Board(clone);
     }
 }

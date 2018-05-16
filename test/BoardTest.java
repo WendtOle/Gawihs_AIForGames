@@ -17,7 +17,7 @@ public class BoardTest {
 
     @Before
     public void before(){
-        GameMaster master = new GameMaster(1);
+        GameMaster master = new GameMaster(1, new Board(), new RoundRobin());
         board = master.board;
     }
 

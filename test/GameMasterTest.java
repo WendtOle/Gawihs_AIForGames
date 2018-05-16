@@ -15,7 +15,7 @@ public class GameMasterTest {
     @Before
     public void before(){
         //Board board = new Board();
-        master = new GameMaster(1);
+        master = new GameMaster(1, new Board(), new RoundRobin());
     }
 
     @Test
@@ -88,6 +88,18 @@ public class GameMasterTest {
         assertEquals(3,master.roundMeter.getValue());
         master.nextPlayer();
         assertEquals(2,master.roundMeter.getValue());
+    }
+
+    @Test
+    public void testUndoMove() {
+        Move move = new Move(0,0,1,1);
+        master.performMove(move);
+        assertFalse(master.board.isExitingField(new Point(0,0)));
+        assertEquals(1,master.board.whichTeamIsOnTop(new Point(1,1)));
+        master.undoMove(move);
+        assertFalse(master.board.isExitingField(new Point(1,1)));
+        assertEquals(1,master.board.whichTeamIsOnTop(new Point(0,0)));
+
     }
 
     @Test

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 
 public class OptionCalculatorTest {
 
-    OptionCalculator optionCalculator = new OptionCalculator(new GameMaster(1));
+    OptionCalculator optionCalculator = new OptionCalculator(new GameMaster(1, new Board(), new RoundRobin()));
 
     @Test
     public void test(){
