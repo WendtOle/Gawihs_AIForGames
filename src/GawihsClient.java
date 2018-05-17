@@ -3,6 +3,7 @@ import javax.imageio.ImageIO;
 import lenz.htw.gawihs.Move;
 import lenz.htw.gawihs.net.NetworkClient;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -57,6 +58,9 @@ public class GawihsClient{
                     client.sendMove(nextMove);
                 }
                  else {
+                    if (master.roundMeter.getValue() != master.board.whichTeamIsOnTop(new Point(move.fromX,move.fromY))){
+                        master.performIllegalMoveForNnextElementextTeamAndMoveOn();
+                    }
                     master.performMove(move);
                     master.nextPlayer();
                 }
