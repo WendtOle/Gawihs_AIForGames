@@ -5,17 +5,26 @@ import lenz.htw.gawihs.net.NetworkClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 //da wo man hinsetzt sollten genug umgebungssteine stehen, wenn man sich auf einen platz mit keiner umgebung stellt dann ist das eher schlecht
 
 public class GawihsClient{
     public static void main(String[] args) throws IOException {
 
+        for(int i = 0; i < args.length; i++)
+            System.out.println(args[i]);
+
         NetworkClient client = new NetworkClient("localhost", "", ImageIO.read(new File("PizzaRick.jpg")));
 
         GameMaster master = new GameMaster(client.getMyPlayerNumber());
+        System.out.println(client.getMyPlayerNumber());
 
-        OptionCalculator optionCalculator = new OptionCalculator();
+        double[] arguments = Arrays.stream(args)
+                .mapToDouble(Double::parseDouble)
+                .toArray();
+
+        OptionCalculator optionCalculator = new OptionCalculator(arguments);
 
         client.getTimeLimitInSeconds();
 
@@ -33,11 +42,12 @@ public class GawihsClient{
                     }
 
                     Move nextMove;
-                    if (master.ownPlayerNumber==1) {
+                    //if (master.ownPlayerNumber==1) {
+                    if (true){
                         timeObserver.init();
 
                         GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber - 1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
-                        nextMove = optionCalculator.alphaBetaStartUp(tempGameMaster, 2, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                        nextMove = optionCalculator.alphaBetaStartUp(tempGameMaster, 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
                         timeObserver.addMoveTime();
 

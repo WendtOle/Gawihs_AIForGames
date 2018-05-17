@@ -11,7 +11,13 @@ import static java.lang.Math.min;
 
 public class OptionCalculator {
 
-    public OptionCalculator() {
+    double[] ratingParamters;
+    double posMovOwn,posMovEneme;
+
+    public OptionCalculator(double[] ratingParamters) {
+        this.ratingParamters = ratingParamters;
+        this.posMovOwn = ratingParamters[0];
+        this.posMovEneme = ratingParamters[1];
     }
 
     public Move getRandomMovement(int teamNumber, GameMaster master) {
@@ -58,17 +64,22 @@ public class OptionCalculator {
         return possibleMovements;
     }
 
-    public int getBoardRatingForTeam(int teamNumber, GameMaster master) {
-        int result = 0;
+    //warum müssen wir den GameMaster übergeben?
+    public double getBoardRatingForTeam(int teamNumber, GameMaster master) {
+        double rating = 0.;
+        rating += weightPossibleMovementPositions(teamNumber, master, rating);
+        return rating;
+    }
 
+    private double weightPossibleMovementPositions(int teamNumber, GameMaster master, double rating) {
         for (int i = 1; i < 4; i++) {
             int currentResult = getAllPossibleMovements(i, master).size();
             if (i == teamNumber)
-                result += currentResult * 2;
+                rating += currentResult * posMovOwn;
             else
-                result -= currentResult;
+                rating -= currentResult * posMovEneme;
         }
-        return result;
+        return rating;
     }
 
     private Set<Point> gatherAllAccessablesNeighboursButOwn(ArrayList<ArrayList<Point>> possibleMoveTOposition, int moveStoneIndex) {
@@ -101,13 +112,13 @@ public class OptionCalculator {
         return legallyAccebleNeighbours;
     }
 
-    public Move alphaBetaStartUp(GameMaster master, int depth, int alpha, int beta){
+    public Move alphaBetaStartUp(GameMaster master, int depth, double alpha, double beta){
         ArrayList<Move> moves = this.getAllPossibleMovements(master.roundMeter.getValue(), master);
         Move bestMove = new Move(0,0,-1,-1);
         if (moves.isEmpty())
             return bestMove;
 
-        int rating;
+        double rating;
 
         for (Move currentMove : moves) {
             GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber-1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
@@ -134,8 +145,8 @@ public class OptionCalculator {
 
     }
 
-    public int alphaBeta(GameMaster master, int depth, int alpha, int beta) {
-        int rating;
+    public double alphaBeta(GameMaster master, int depth, double alpha, double beta) {
+        double rating;
         ArrayList<Move> moves = this.getAllPossibleMovements(master.roundMeter.getValue(), master);
 
         if (depth == 0 || moves.isEmpty()) { //if depth = 0 or node is a terminal node

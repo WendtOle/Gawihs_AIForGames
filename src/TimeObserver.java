@@ -18,5 +18,6 @@ public class TimeObserver {
 
     public void printDuration(){
         System.out.println(turnDurations.toString());
+        System.out.println(turnDurations.size());
     }
 }
