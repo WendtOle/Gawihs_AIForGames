@@ -43,17 +43,12 @@ public class GawihsClient{
                     }
 
                     Move nextMove;
-                    //if (master.ownPlayerNumber==1) {
-                    if (true){
-                        timeObserver.init();
+                    timeObserver.init();
 
-                        GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber - 1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
-                        nextMove = optionCalculator.alphaBetaStartUp(tempGameMaster, 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber - 1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
+                    nextMove = optionCalculator.alphaBetaStartUp(tempGameMaster, 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-                        timeObserver.addMoveTime();
-
-                    } else
-                        nextMove = optionCalculator.getRandomMovement(client.getMyPlayerNumber() + 1, master);
+                    timeObserver.addMoveTime();
 
                     client.sendMove(nextMove);
                 }
