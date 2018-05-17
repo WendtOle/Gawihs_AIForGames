@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class GameMaster {
     int ownPlayerNumber;
     Board board;
-    //CircleArray roundMeter = CircleArrayCreator.createCircleArray(3,1);
+
     RoundRobin roundMeter;
     Point[][] teamPosition = {
             {new Point(0,0),new Point(1,0),new Point(2,0),new Point(3,0),new Point(4,0)},

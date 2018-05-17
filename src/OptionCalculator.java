@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.function.DoubleBinaryOperator;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -102,16 +101,45 @@ public class OptionCalculator {
         return legallyAccebleNeighbours;
     }
 
-    public BestMove alphabeta(GameMaster master, int depth, int alpha, int beta) {
+    public Move alphaBetaStartUp(GameMaster master, int depth, int alpha, int beta){
+        ArrayList<Move> moves = this.getAllPossibleMovements(master.roundMeter.getValue(), master);
+        Move bestMove = new Move(0,0,-1,-1);
+        if (moves.isEmpty())
+            return bestMove;
 
         int rating;
+
+        for (Move currentMove : moves) {
+            GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber-1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
+
+            tempGameMaster.performMove(currentMove); //perform move on board
+            int currentTeam = master.roundMeter.getValue();
+            tempGameMaster.nextPlayer();
+
+            rating = alphaBeta(tempGameMaster,depth - 1, alpha, beta);
+
+            if (currentTeam == master.ownPlayerNumber) { //if maximizingPlayer
+                if(rating > alpha) {
+                    alpha = rating;
+                    bestMove = currentMove;
+                }
+            } else { //if minimizing player
+                if(rating < beta) {
+                    beta = rating;
+                }
+            }
+            if (beta <= alpha) break;
+        }
+        return bestMove;
+
+    }
+
+    public int alphaBeta(GameMaster master, int depth, int alpha, int beta) {
+        int rating;
         ArrayList<Move> moves = this.getAllPossibleMovements(master.roundMeter.getValue(), master);
-        //BestMove bestMove = new BestMove(0, getRandomMovement(master.roundMeter.getValue()));
-        BestMove bestMove = new BestMove(0, new Move(0,0,-1,-1));
 
         if (depth == 0 || moves.isEmpty()) { //if depth = 0 or node is a terminal node
-            bestMove.rating = getBoardRatingForTeam(master.ownPlayerNumber, master);;
-            return bestMove;
+            return getBoardRatingForTeam(master.ownPlayerNumber, master);
         }
 
         for (Move currentMove : moves) {
@@ -121,12 +149,11 @@ public class OptionCalculator {
             int currentTeam = master.roundMeter.getValue();
             tempGameMaster.nextPlayer();
 
-            rating = alphabeta(tempGameMaster,depth - 1, alpha, beta).rating;
+            rating = alphaBeta(tempGameMaster,depth - 1, alpha, beta);
 
             if (currentTeam == master.ownPlayerNumber) { //if maximizingPlayer
                 if(rating > alpha) {
                     alpha = rating;
-                    bestMove.move = currentMove;
                 }
             } else { //if minimizing player
                 if(rating < beta) {
@@ -135,8 +162,8 @@ public class OptionCalculator {
             }
             if (beta <= alpha) break;
         }
-        bestMove.rating = (master.roundMeter.getValue() == master.ownPlayerNumber) ? alpha : beta;
-        return bestMove;
+        return (master.roundMeter.getValue() == master.ownPlayerNumber) ? alpha : beta;
+
     }
 
 }

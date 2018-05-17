@@ -5,7 +5,6 @@ import lenz.htw.gawihs.net.NetworkClient;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 //da wo man hinsetzt sollten genug umgebungssteine stehen, wenn man sich auf einen platz mit keiner umgebung stellt dann ist das eher schlecht
 
@@ -38,7 +37,7 @@ public class GawihsClient{
                         timeObserver.init();
 
                         GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber - 1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
-                        nextMove = optionCalculator.alphabeta(tempGameMaster, 5, Integer.MIN_VALUE, Integer.MAX_VALUE).move;
+                        nextMove = optionCalculator.alphaBetaStartUp(tempGameMaster, 2, Integer.MIN_VALUE, Integer.MAX_VALUE);
 
                         timeObserver.addMoveTime();
 
