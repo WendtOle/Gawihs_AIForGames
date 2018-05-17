@@ -31,7 +31,9 @@ public class GawihsClient{
 
         client.getExpectedNetworkLatencyInMilliseconds();
 
-        TimeObserver timeObserver = new TimeObserver();;
+        TimeObserver timeObserver = new TimeObserver(TimeObserver.Output.BASIC);;
+
+        int turnCounter = -1;
 
         while(true) {
             try {
@@ -51,6 +53,7 @@ public class GawihsClient{
                     timeObserver.addMoveTime();
 
                     client.sendMove(nextMove);
+                    turnCounter ++;
                 }
                  else {
                     if (master.roundMeter.getValue() != master.board.whichTeamIsOnTop(new Point(move.fromX,move.fromY))){
@@ -64,5 +67,7 @@ public class GawihsClient{
             }
         }
         timeObserver.printDuration();
+        System.out.println(turnCounter);
+
     }
 }
