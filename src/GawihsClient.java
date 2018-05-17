@@ -14,7 +14,8 @@ public class GawihsClient{
     public static void main(String[] args) throws IOException {
 
         for(int i = 0; i < args.length; i++)
-            System.out.println(args[i]);
+            System.out.print(args[i] + " ");
+        System.out.print("\n");
 
         NetworkClient client = new NetworkClient("localhost", "", ImageIO.read(new File("PizzaRick.jpg")));
 
