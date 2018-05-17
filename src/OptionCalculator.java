@@ -13,11 +13,14 @@ public class OptionCalculator {
 
     double[] ratingParamters;
     double posMovOwn,posMovEneme;
+    double ownStoneIsBlocking, ownStoneBlocked;
 
     public OptionCalculator(double[] ratingParamters) {
         this.ratingParamters = ratingParamters;
         this.posMovOwn = ratingParamters[0];
         this.posMovEneme = ratingParamters[1];
+        this.ownStoneBlocked = ratingParamters[2];
+        this.ownStoneIsBlocking = ratingParamters[3];
     }
 
     public Move getRandomMovement(int teamNumber, GameMaster master) {
@@ -67,19 +70,40 @@ public class OptionCalculator {
     //warum müssen wir den GameMaster übergeben?
     public double getBoardRatingForTeam(int teamNumber, GameMaster master) {
         double rating = 0.;
-        rating += weightPossibleMovementPositions(teamNumber, master, rating);
+        rating += weightPossibleMovementPositions(teamNumber, master);
+        rating += recognizeBlockedStones(teamNumber,master);
         return rating;
     }
 
-    private double weightPossibleMovementPositions(int teamNumber, GameMaster master, double rating) {
+    private double weightPossibleMovementPositions(int teamNumber, GameMaster master) {
+        double subRating = 0.;
         for (int i = 1; i < 4; i++) {
             int currentResult = getAllPossibleMovements(i, master).size();
             if (i == teamNumber)
-                rating += currentResult * posMovOwn;
+                subRating += currentResult * posMovOwn;
             else
-                rating -= currentResult * posMovEneme;
+                subRating += currentResult * posMovEneme;
         }
-        return rating;
+        return subRating;
+    }
+
+    private double recognizeBlockedStones(int teamNumber, GameMaster master){
+        double subRating = 0.;
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                Point currentPoint = new Point(i,j);
+                int currentState = master.board.get(currentPoint);
+                if (currentState > 0xf & currentState < 255) {
+                    if (master.board.whichTeamIsOnTop(currentPoint) == teamNumber)
+                        subRating += ownStoneIsBlocking;
+                    else if ((currentState >> 4 ) == teamNumber){
+                        subRating += ownStoneBlocked;
+                    }
+                }
+            }
+        }
+        return subRating;
     }
 
     private Set<Point> gatherAllAccessablesNeighboursButOwn(ArrayList<ArrayList<Point>> possibleMoveTOposition, int moveStoneIndex) {

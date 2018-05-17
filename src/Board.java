@@ -42,7 +42,7 @@ public class Board {
         boardRepr[point.x][point.y] = valueToPlace;
     }
 
-    private int get(Point point) throws IndexOutOfBoundsException {
+    public int get(Point point) throws IndexOutOfBoundsException {
         return boardRepr[point.x][point.y];
     }
 
