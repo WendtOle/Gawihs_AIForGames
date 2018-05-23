@@ -1,4 +1,5 @@
 from subprocess import Popen, PIPE, STDOUT, DEVNULL
+import numpy
 import random
 
 def randomInputValues(count):
@@ -17,8 +18,10 @@ def getOuptuptForPlayerWithParam(param1, param2, param3, param4):
     return Popen(['java', '-jar', '../out/artifacts/gawihsClient_jar/gawihsClient.jar', str(param1), str(param2), str(param3), str(param4)], stdout=PIPE, stderr=STDOUT, universal_newlines=True)
 
 def printResults(playerValues, playerResults):
+    playerResultsAsInt = [int(numeric_string) for numeric_string in playerResults]
     print("Parameters:", playerValues)
-    print("Results:", playerResults)
+    print("Results:", playerResultsAsInt)
+    print("Mean result:", numpy.mean(playerResultsAsInt))
 
 playerOneValues = randomInputValues(4);
 playerTwoValues = randomInputValues(4);
@@ -26,7 +29,7 @@ playerThreeValues = randomInputValues(4);
 
 playerOneResults, playerTwoResults, playerThreeResults = [],[],[]
 
-for x in range(1):
+for x in range(2):
     print("round:", x+1)
     #start server
     Popen(['java', '-Djava.library.path=../../gawihs/lib/native', '-jar', '../../gawihs/gawihs.jar', '0', '0', '50000', 'noanim', 'autoclose'], stdout=DEVNULL)
@@ -44,3 +47,6 @@ for x in range(1):
 printResults(playerOneValues, playerOneResults)
 printResults(playerTwoValues, playerTwoResults)
 printResults(playerThreeValues, playerThreeResults)
+
+
+

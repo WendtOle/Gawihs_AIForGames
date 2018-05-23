@@ -29,7 +29,7 @@ end
 # unset irrelevant variables
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/toezer/Work/GT1_AI_for_Games_and_Interactive_Systems/gawihsClient/gawhisEvolutionScript/venv"
+set -gx VIRTUAL_ENV "/Users/toezer/Work/GT1/gawihsClient/gawhisEvolutionScript/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH
