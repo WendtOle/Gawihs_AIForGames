@@ -6,7 +6,17 @@ def randomInputValues(count):
     values = []
     for i in range(count):
         values.append(random.uniform(-1, 1))
-    return values
+    return normalize(values)
+
+def mutate(parent):
+    values = []
+    for i in range(len(parent)):
+        values.append(parent[i] + random.uniform(-0.1, 0.1))
+    return normalize(values)
+
+def normalize(values):
+    total = numpy.sum(numpy.absolute(values))
+    return [x / total for x in values]
 
 def getResultFromOutput(clientOutput):
     output = ""
@@ -14,8 +24,8 @@ def getResultFromOutput(clientOutput):
         output = line
     return output
 
-def getOuptuptForPlayerWithParam(param1, param2, param3, param4):
-    return Popen(['java', '-jar', '../out/artifacts/gawihsClient_jar/gawihsClient.jar', str(param1), str(param2), str(param3), str(param4)], stdout=PIPE, stderr=STDOUT, universal_newlines=True)
+def getOuptuptForPlayerWithParam(params):
+    return Popen(['java', '-jar', '../out/artifacts/gawihsClient_jar/gawihsClient.jar', str(params[0]), str(params[0]), str(params[0]), str(params[0])], stdout=PIPE, stderr=STDOUT, universal_newlines=True)
 
 def printResults(playerValues, playerResults):
     playerResultsAsInt = [int(numeric_string) for numeric_string in playerResults]
@@ -23,30 +33,45 @@ def printResults(playerValues, playerResults):
     print("Results:", playerResultsAsInt)
     print("Mean result:", numpy.mean(playerResultsAsInt))
 
-playerOneValues = randomInputValues(4);
-playerTwoValues = randomInputValues(4);
-playerThreeValues = randomInputValues(4);
+playerValues = [randomInputValues(4), randomInputValues(4),randomInputValues(4)]
 
-playerOneResults, playerTwoResults, playerThreeResults = [],[],[]
+playerResults = [[],[],[]]
 
-for x in range(2):
-    print("round:", x+1)
-    #start server
-    Popen(['java', '-Djava.library.path=../../gawihs/lib/native', '-jar', '../../gawihs/gawihs.jar', '0', '0', '50000', 'noanim', 'autoclose'], stdout=DEVNULL)
 
-    #start clients
-    playerOneOutput = getOuptuptForPlayerWithParam(playerOneValues[0], playerOneValues[1], playerOneValues[2], playerOneValues[3])
-    playerTwoOutput = getOuptuptForPlayerWithParam(playerTwoValues[0], playerOneValues[1], playerOneValues[2], playerOneValues[3])
-    playerThreeOutput = getOuptuptForPlayerWithParam(playerThreeValues[0], playerOneValues[1], playerOneValues[2], playerOneValues[3])
+for gen in range(10):
+    for x in range(10):
+        print("round:", x+1)
 
-    #get Client Result
-    playerOneResults.append(getResultFromOutput(playerOneOutput))
-    playerTwoResults.append(getResultFromOutput(playerTwoOutput))
-    playerThreeResults.append(getResultFromOutput(playerThreeOutput))
+        #start server
+        Popen(['java', '-Djava.library.path=../../gawihs/lib/native', '-jar', '../../gawihs/gawihs.jar', '0', '0', '50000', 'noanim', 'autoclose'], stdout=DEVNULL)
 
-printResults(playerOneValues, playerOneResults)
-printResults(playerTwoValues, playerTwoResults)
-printResults(playerThreeValues, playerThreeResults)
+        playerOutputs = []
+        for i in range(3):
+            playerOutputs.append(getOuptuptForPlayerWithParam(playerValues[i]))
 
+        # get Client Result
+        playerResults[0].append(getResultFromOutput(playerOutputs[0]))
+        playerResults[1].append(getResultFromOutput(playerOutputs[1]))
+        playerResults[2].append(getResultFromOutput(playerOutputs[2]))
+
+    allMeanResults =[]
+
+    for i in range(3):
+        playerResultsAsInt = [int(numeric_string) for numeric_string in playerResults[i]]
+        allMeanResults.append(numpy.mean(playerResultsAsInt))
+        #print("Values:", playerValues[i])
+        #print("Results:", playerResults[i])
+        print("Mean Result:", allMeanResults[i])
+
+    max_value = max(allMeanResults)
+    max_index = allMeanResults.index(max_value)
+
+    print("max value:", max_value)
+    #print("max index:", max_index)
+
+    parent = playerValues[max_index]
+    print("new parent:", parent)
+    for i in range(3):
+        playerValues[i] = mutate(parent)
 
 
