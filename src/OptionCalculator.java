@@ -173,6 +173,10 @@ public class OptionCalculator {
         double rating;
         ArrayList<Move> moves = this.getAllPossibleMovements(master.roundMeter.getValue(), master);
 
+        if(Thread.currentThread().isInterrupted()){
+            return .0;
+        }
+
         if (depth == 0 || moves.isEmpty()) { //if depth = 0 or node is a terminal node
             return getBoardRatingForTeam(master.ownPlayerNumber, master);
         }

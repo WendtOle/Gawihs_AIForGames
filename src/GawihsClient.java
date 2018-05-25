@@ -6,7 +6,9 @@ import lenz.htw.gawihs.net.NetworkClient;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.*;
 
 //da wo man hinsetzt sollten genug umgebungssteine stehen, wenn man sich auf einen platz mit keiner umgebung stellt dann ist das eher schlecht
@@ -18,22 +20,31 @@ public class GawihsClient{
             System.out.print(args[i] + " ");
         System.out.print("\n");
 
-        NetworkClient client = new NetworkClient("localhost", "", ImageIO.read(new File("PizzaRick.jpg")));
+        int timeLimitInMs = Integer.parseInt(args[4]);
+        String hostname = args[5];
+
+        String[] arguments_ = Arrays.copyOfRange(args,0,4);
+
+        double[] arguments = Arrays.stream(arguments_)
+                .mapToDouble(Double::parseDouble)
+                .toArray();
+
+        String[] depths_ = Arrays.copyOfRange(args,6,args.length);
+
+        int[] depths = Arrays.stream(depths_)
+                .mapToInt(Integer::parseInt)
+                .toArray();
+
+        NetworkClient client = new NetworkClient(hostname, "Cadwaladr ap Rhys Trefnant", ImageIO.read(new File("img.jpg")));
 
         GameMaster master = new GameMaster(client.getMyPlayerNumber());
         System.out.println(client.getMyPlayerNumber());
-
-        double[] arguments = Arrays.stream(args)
-                .mapToDouble(Double::parseDouble)
-                .toArray();
 
         OptionCalculator optionCalculator = new OptionCalculator(arguments);
 
         client.getTimeLimitInSeconds();
 
         client.getExpectedNetworkLatencyInMilliseconds();
-
-        TimeObserver timeObserver = new TimeObserver(TimeObserver.Output.BASIC);;
 
         int turnCounter = -1;
 
@@ -47,59 +58,36 @@ public class GawihsClient{
                         master.performIllegalMoveForNnextElementextTeamAndMoveOn();
                     }
 
-                    Move nextMove;
-                    timeObserver.init();
+                    Move nextMove = optionCalculator.getRandomMovement(master.ownPlayerNumber, master);
 
-                    GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber - 1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
+                    List<Callable<Move>> callList = new ArrayList<Callable<Move>>();
 
-                    Callable<Move> task4 = () -> {
-                        return optionCalculator.alphaBetaStartUp(tempGameMaster, 5, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    };
-
-                    Callable<Move> task3 = () -> {
-                        if(Thread.currentThread().isInterrupted())
-                            throw new RuntimeException();
-                        return optionCalculator.alphaBetaStartUp(tempGameMaster, 4, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    };
-
-                    Callable<Move> task2 = () -> {
-                        if(Thread.currentThread().isInterrupted())
-                            throw new RuntimeException();
-                        return optionCalculator.alphaBetaStartUp(tempGameMaster, 3, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    };
+                    for (int currentDepth : depths) {
+                        callList.add( () -> {
+                            GameMaster tempGameMaster = new GameMaster(master.ownPlayerNumber - 1, master.board.clone(), master.roundMeter.clone(), master.cloneTeamposition());
+                            return optionCalculator.alphaBetaStartUp(tempGameMaster, currentDepth, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                        });
+                    }
 
                     ExecutorService executor = Executors.newFixedThreadPool(3);
-                    Future<Move> futureDepth4 = executor.submit(task4);
-                    Future<Move> futureDepth3 = executor.submit(task3);
-                    Future<Move> futureDepth2 = executor.submit(task2);
+                    System.out.print(System.currentTimeMillis() - startTime + " ");
+                    List<Future<Move>> futures = executor.invokeAll(callList,timeLimitInMs,TimeUnit.MILLISECONDS);
 
-                    nextMove = optionCalculator.getRandomMovement(master.ownPlayerNumber, master);
-
-                    String output = "random";
-                    while(System.currentTimeMillis() - startTime <= 4800 - client.getExpectedNetworkLatencyInMilliseconds()) {
-                        // still time left
-                        if (futureDepth2.isDone()){
-                            nextMove = futureDepth2.get();
-                            output = "depth 3";
+                    System.out.print("\rreached only random" + "\r");
+                    for (int j = 0; j < futures.size(); j++) {
+                        Future<Move> future = futures.get(j);
+                        if (future.isCancelled()) {
+                            break;
                         }
-                        if (futureDepth3.isDone()) {
-                            nextMove = futureDepth3.get();
-                            output = "depth 4";
-                        }
-                        if (futureDepth4.isDone()) {
-                            nextMove = futureDepth4.get();
-                            output = "depth 5";
-                        }
+                        nextMove = future.get();
+                        System.out.print("\rreached depth: " + depths[j] + "\r");
                     }
+                    System.out.println();
+
+
                     client.sendMove(nextMove);
-                    System.out.println(output);
-
                     executor.shutdownNow();
-                    futureDepth2.get();
-                    futureDepth3.get();
-                    futureDepth4.get();
 
-                    timeObserver.addMoveTime();
                     turnCounter ++;
                 }
                  else {
@@ -117,8 +105,6 @@ public class GawihsClient{
                 e.printStackTrace();
             }
         }
-        timeObserver.printDuration();
         System.out.println(turnCounter);
-
     }
 }
